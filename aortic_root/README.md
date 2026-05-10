@@ -95,8 +95,8 @@ Blood viscosity parameters (built-in, by hematocrit):
 
 ### Boundary Conditions
 - **Inlet (z = -0.022)**: Poiseuille velocity profile with Navier-slip (parameter κ)
-- **Outlet (z = 0.022)**: Natural (stress-free) condition
-- **Wall**: Slip condition enforced via Nitsche penalty method (parameter β)
+- **Outlet (z = 0.022)**: Directional do-nothing condition
+- **Wall**: Slip + impermeabilitycondition enforced via Nitsche penalty method (parameter β)
 - **Axis (r = 0)**: Symmetry condition
 
 ### Boundary Normal Projection
@@ -121,7 +121,7 @@ The module `generate_normal_2D.py` projects exterior facet normals onto CG1 spac
 - **Max Newton iterations**: 10–16
 
 ### Pulsatile Inlet Profile (Evolution Codes)
-Inlet velocity varies sinusoidally with period T = 1.0:
+Inlet velocity varies with period T = 1.0:
 $$v_{\text{in}}(t) = \begin{cases}
 -\frac{4V}{t_{\rm max}^2} t(t - t_{\rm max}) & \text{if } t \bmod T < t_{\rm max} \\
 0 & \text{otherwise}
