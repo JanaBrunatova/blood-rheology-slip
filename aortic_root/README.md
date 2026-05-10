@@ -64,7 +64,7 @@ python3 aorta-2d-cyl-Carreau-evol.py 3.14 output_Carreau_evol.txt 1000 20
 ## Output
 
 ### Text Output
-Each script appends one line per time step to the specified output file:
+Steady scripts append one final line after convergence; evolution scripts append one line per time step:
 ```
 <time> <kappa> <bulk_dissipation> <boundary_dissipation> <total_dissipation> <wall_shear_stress> <pressure_drop> <vorticity> <normal_velocity>
 ```
