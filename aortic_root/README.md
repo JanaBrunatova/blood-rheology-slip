@@ -41,24 +41,24 @@ python3 <script_name>.py <kappa> <output_file> <beta> <radius> [<hematocrit>]
 
 ### Examples
 
-**Steady-state Newtonian (R=16 mm, Hct=45%)**
+**Steady-state Newtonian (R=16 mm, $\kappa$=2 Pa·s/m, Hct=45%)**
 ```bash
 python3 aorta-2d-cyl-NS.py 2 output_NS_45.txt 1000 16 45
 ```
 
-**Steady-state Carreau (R=16 mm, Hct=45%)**
+**Steady-state Carreau (R=16 mm, $\kappa$=2 Pa·s/m, Hct=45%)**
 ```bash
 python3 aorta-2d-cyl-Carreau.py 2 output_Carreau_45.txt 1000 16 45
 ```
 
-**Pulsatile Newtonian (R=12 mm, Hct=65%)**
+**Pulsatile Newtonian (R=12 mm, $\kappa$=3.14 Pa·s/m, Hct=65%)**
 ```bash
-python3 aorta-2d-cyl-NS-evol.py 2 output_NS_evol.txt 1000 12 65
+python3 aorta-2d-cyl-NS-evol.py 3.14 output_NS_evol.txt 1000 12 65
 ```
 
-**Pulsatile Carreau (R=20 mm, default Hct=45%)**
+**Pulsatile Carreau (R=20 mm, $\kappa$=3.14 Pa·s/m, default Hct=45%)**
 ```bash
-python3 aorta-2d-cyl-Carreau-evol.py 1.5 output_Carreau_evol.txt 1000 20
+python3 aorta-2d-cyl-Carreau-evol.py 3.14 output_Carreau_evol.txt 1000 20
 ```
 
 ## Output
