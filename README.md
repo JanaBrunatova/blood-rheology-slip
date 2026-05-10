@@ -21,7 +21,7 @@ The code is written in Python3 and requires the following:
 ## Aortic root axisymmetric simulations
 
 Simulations of blood flow in an idealized 2D axisymmetric aortic root geometry.
-The code solves the Navier–Stokes or Carreau rheological equations for steady-state (long-time) and pulsatile (time-dependent) flows.
+The code solves the Navier–Stokes or Carreau constitutive equations for steady-state (long-time) and pulsatile (time-dependent) flows.
 Results can be reproduced by running the scripts in the folder `aortic_root`.
 
 **Available codes:**
@@ -51,8 +51,6 @@ python3 aorta-2d-cyl-NS.py 2 output_NS_45.txt 1000 16 45
 ```bash
 python3 aorta-2d-cyl-Carreau-evol.py 2 output_Carreau_evol.txt 1000 16 45
 ```
-
-Evolution scripts use fixed time stepping (`dt = 0.01`).
 
 Time-evolution scripts output velocity and pressure in VTK format to folders `results_NS_<hematocrit>/` and `results_Carreau_<hematocrit>/` (viewable with ParaView).
 
