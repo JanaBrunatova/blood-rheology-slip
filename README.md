@@ -20,10 +20,43 @@ The code is written in Python3 and requires the following:
 
 ## Aortic root axisymmetric simulations
 
-Results for the idealized aortic root can be reproduced by running the following commands in the folder `aortic_root`:
+Simulations of blood flow in an idealized 2D axisymmetric aortic root geometry.
+The code solves the Navier–Stokes or Carreau rheological equations for steady-state (long-time) and pulsatile (time-dependent) flows.
+Results can be reproduced by running the scripts in the folder `aortic_root`.
+
+**Available codes:**
+- `aorta-2d-cyl-NS.py`: Newtonian steady-state solver
+- `aorta-2d-cyl-Carreau.py`: Carreau non-Newtonian steady-state solver
+- `aorta-2d-cyl-NS-evol.py`: Newtonian time-evolution (pulsatile) solver
+- `aorta-2d-cyl-Carreau-evol.py`: Carreau time-evolution (pulsatile) solver
+
+**Mesh geometries** (parameterized by sinus radius):
+- `mesh_R12.h5`: Radius 12 mm
+- `mesh_R16.h5`: Radius 16 mm
+- `mesh_R20.h5`: Radius 20 mm
+
+**Parameters to set (command-line arguments):**
+- `kappa`: Navier-slip coefficient (e.g., 2 Pa·s/m)
+- `output_file`: Output filename for scalar results
+- `beta`: Nitsche penalty parameter (e.g., 1000)
+- `radius`: Sinus radius in mm (12, 16, or 20) — selects mesh file
+- `hematocrit`: Blood hematocrit level (optional; 25, 45, or 65 %; default 45)
+
+**Example: Steady-state Newtonian simulation (radius 16 mm, hematocrit 45%)**
 ```bash
-python3
+python3 aorta-2d-cyl-NS.py 2 output_NS_45.txt 1000 16 45
 ```
+
+**Example: Time-evolved Carreau simulation (radius 16 mm, hematocrit 45%)**
+```bash
+python3 aorta-2d-cyl-Carreau-evol.py 2 output_Carreau_evol.txt 1000 16 45
+```
+
+Evolution scripts use fixed time stepping (`dt = 0.01`).
+
+Time-evolution scripts output velocity and pressure in VTK format to folders `results_NS_<hematocrit>/` and `results_Carreau_<hematocrit>/` (viewable with ParaView).
+
+For detailed description of parameters, rheological models, and numerical methods, see `aortic_root/README.md`.
 
 ## Patient-specific aneurysm simulations
 
