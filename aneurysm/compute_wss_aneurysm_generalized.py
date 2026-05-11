@@ -341,7 +341,7 @@ match = re.search(r"(case\d{2})", mesh_file)
 case = match.group(1)
 
 if refsystems_file == "":
-    refsystems_file = f"../meshes/{case}_SI/{case}_refsystems_SI.dat"
+    refsystems_file = f"meshes/{case}_refsystems_SI.dat"
 
 refsys = mesh_info.read_file(refsystems_file)  # output from vmtk
 
