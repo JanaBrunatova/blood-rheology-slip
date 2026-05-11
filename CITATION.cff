@@ -1,0 +1,35 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite it as below."
+type: software
+
+title: "blood-rheology-slip: Simulation and post-processing files for fluid rheology and wall slip effects on arterial blood flow"
+
+authors:
+  - family-names: "Brunátová"
+    given-names: "Jana"
+    orcid: "https://orcid.org/0009-0000-5948-233X"
+  - family-names: "Tůma"
+    given-names: "Karel"
+    orcid: "https://orcid.org/0000-0002-7382-4217"
+  - family-names: "Hron"
+    given-names: "Jaroslav"
+    orcid: "https://orcid.org/0000-0001-5862-2353"
+  - family-names: "Málek"
+    given-names: "Josef"
+    orcid: "https://orcid.org/0000-0001-6920-0842"
+
+abstract: "Simulation and post-processing files for the study of fluid rheology and wall slip effects on blood flow characteristics in arteries."
+
+keywords:
+  - blood flow
+  - fluid rheology
+  - wall slip
+  - Navier-Stokes
+  - Carreau model
+
+license: MIT
+repository-code: "https://github.com/JanaBrunatova/blood-rheology-slip"
+url: "https://github.com/JanaBrunatova/blood-rheology-slip"
+
+version: "1.0.0"
+date-released: "2026-05-12"
