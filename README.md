@@ -56,35 +56,72 @@ Time-evolution scripts output velocity and pressure in VTK format to folders `re
 
 For detailed description of parameters, rheological models, and numerical methods, see `aortic_root/README.md`.
 
+
+
 ## Patient-specific aneurysm simulations
 
-This part of the repository contains post-processing scripts for patient-specific 3D aneurysm simulations. The flow solver is based on the `ns_aneurysm` package and computes velocity and pressure for Newtonian and Carreau blood rheology models with either no-slip or partial-slip wall boundary conditions.
+Simulations of blood flow in a patient-specific 3D aneurysm geometry.
 
-Results for the aneurysm cases can be reproduced by running the scripts in the folder `aneurysm`.
+The flow solver is based on the `ns_aneurysm` package and computes velocity and pressure for Newtonian and Carreau blood rheology models with either no-slip or partial-slip wall boundary conditions. Post-processing scripts compute wall shear stress, surface-based hemodynamic indicators, and scalar flow metrics.
+
+Results can be reproduced by running the scripts in the folder `aneurysm`.
 
 **Available codes:**
 
-- `compute_wss_aneurysm_generalized.py`: computes vectorial wall shear stress from the velocity-pressure solution
-- `evaluate_indicators.py`: computes surface-based hemodynamic indicators, including TAWSS, OSI, LSA, and normalized WSS
-- `compute_flow_metrics.py`: integrates hemodynamic quantities over the aneurysm region and writes scalar output tables
+- `aneurysm_example.py`: 3D patient-specific aneurysm flow solver
+- `compute_wss_aneurysm_generalized.py`: vectorial wall shear stress computation
+- `evaluate_indicators.py`: evaluation of surface-based hemodynamic indicators, including TAWSS, OSI, LSA, and normalized WSS
+- `compute_flow_metrics.py`: spatial integration of hemodynamic quantities over the aneurysm region
 
 **Input data:**
 
+- patient-specific aneurysm mesh
 - marked aneurysm mesh in HDF5 format
+- inlet flow profile
+- local reference-system file
 - velocity-pressure solution file `w.h5`
-- inlet profile and reference-system files used by the `ns_aneurysm` solver
-- selected rheological model and wall-slip parameter
+- selected rheological model
+- selected wall-slip parameter
 
 **Main parameters:**
 
 - `model`: blood rheology model, for example `Newtonian`, `Carreau_HCT25`, `Carreau_HCT45`, or `Carreau_HCT65`
-- `theta`: slip parameter used in the simulation; use `-1.0` for Dirichlet no-slip and values in `[0, 1]` for Nitsche slip enforcement
-- `mesh`: path to the marked aneurysm mesh
+- `Theta`: slip parameter used in the flow simulation; use `-1.0` for Dirichlet no-slip and values in `[0, 1]` for Nitsche slip enforcement
+- `theta`: slip parameter used during post-processing; use the same value as `Theta`
+- `meshname`: name of the aneurysm mesh file used by the flow solver
+- `mesh`: path to the marked aneurysm mesh in HDF5 format
 - `w_file`: path to the HDF5 file containing velocity and pressure
 - `res_folder`: folder where post-processing results are written
-- `case`: aneurysm case identifier, use always `case01`
+- `case`: aneurysm case identifier; use `case01`
 
-**Example workflow:**
+**Example: Flow simulation**
+
+```bash
+python3 aneurysm_example.py \
+    -model ${model} \
+    -mu 0.00345 \
+    -rho 1050 \
+    -Theta ${Theta} \
+    -meshname ${meshname} \
+    -meshfolder meshes/ \
+    -element th \
+    -normal FacetNormal \
+    -stab none \
+    -refsys_filename meshes/case01_refsystems_SI.dat \
+    -profile pulsatile \
+    -profile_analytical False \
+    -inflow_file meshes/inletcase01.dat \
+    -periods 3 \
+    -uniform_dt_last_period \
+    -uniform_dt 0.01 \
+    -unit_system SI \
+    -bcout_dir_do_nothing \
+    -dest ${res_folder}
+```
+
+The flow simulation stores velocity and pressure in `w.h5`. This file is used in the post-processing steps below.
+
+**Example: Wall shear stress computation**
 
 ```bash
 python3 compute_wss_aneurysm_generalized.py \
@@ -95,14 +132,38 @@ python3 compute_wss_aneurysm_generalized.py \
     -o ${res_folder} \
     --theta ${theta} \
     --model ${model}
+```
 
+**Example: Hemodynamic indicator evaluation**
+
+For no-slip simulations, run:
+
+```bash
 python3 evaluate_indicators.py \
     --case ${case} \
     --mesh-folder ${mesh} \
     --element th \
     --edgelengths 200 \
     --res-folder ${res_folder}
+```
 
+For partial-slip simulations, add the `--rescaled` argument:
+
+```bash
+python3 evaluate_indicators.py \
+    --case ${case} \
+    --mesh-folder ${mesh} \
+    --element th \
+    --edgelengths 200 \
+    --res-folder ${res_folder} \
+    --rescaled
+```
+
+**Example: Scalar flow metric computation**
+
+For no-slip simulations, run:
+
+```bash
 python3 compute_flow_metrics.py \
     --case ${case} \
     --mesh-folder ${mesh} \
@@ -113,5 +174,22 @@ python3 compute_flow_metrics.py \
     --wss-file wss_standard_CG_1_cp.xdmf \
     --theta ${theta} \
     --wss-degree 1
+```
+
+For partial-slip simulations, use the rescaled WSS file:
+
+```bash
+python3 compute_flow_metrics.py \
+    --case ${case} \
+    --mesh-folder ${mesh} \
+    --element th \
+    --res-folder ${res_folder} \
+    --v-file v_cp.xdmf \
+    --wss-file wss_rescaled_v_tan_cp.xdmf \
+    --theta ${theta} \
+    --wss-degree 2
+```
+
+Time-dependent velocity, pressure, wall shear stress, and surface indicators are stored in XDMF format and can be visualized in ParaView. Scalar flow metrics are written to output tables.
 
 For a detailed description of the aneurysm workflow, post-processing steps, and output files, see `aneurysm/README.md`.
