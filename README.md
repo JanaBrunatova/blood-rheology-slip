@@ -63,23 +63,34 @@ Navier-Stokes equations are solved for velocity and pressure by running the code
 **Parameters to set:**
 
 - `model`: Rheological model for blood. Either `Newtonian`, `Carreau_HCT25`, `Carreau_HCT45`, or `Carreau_HCT65`.
-- `Theta`: Slip parameter between 0 an 1. Use `-1.0` for Dirichlet no-slip BC.
+- `Theta`: Slip parameter between 0 an 1 for Nitsche enforcement of slip BC. Use `-1.0` for Dirichlet no-slip BC.
 - `meshname`: Name of the `.xml` mesh file.
 - `meshfolder`: Folder containing the mesh file.
 - `dest`: Name of the folder where the results will be stored.
 
 ```bash
-python3 aneurysm_example.py -model ${model} -mu 0.00345 -rho 1050 -Theta ${Theta} -meshname ${mesh} -meshfolder ../meshes/ -element th -normal FacetNormal -stab none -refsys_filename ../meshes/case01_refsystems_SI.dat -profile pulsatile -profile_analytical False -inflow_file ../meshes/inletcase01.dat -periods 3 -uniform_dt_last_period -uniform_dt 0.01 -unit_system SI -bcout_dir_do_nothing -dest ${dest}
+python3 aneurysm_example.py -model ${model} -mu 0.00345 -rho 1050 -Theta ${Theta} -meshname ${meshname} -meshfolder meshes/ -element th -normal FacetNormal -stab none -refsys_filename meshes/case01_refsystems_SI.dat -profile pulsatile -profile_analytical False -inflow_file meshes/inletcase01.dat -periods 3 -uniform_dt_last_period -uniform_dt 0.01 -unit_system SI -bcout_dir_do_nothing -dest ${dest}
 ```
 The postprocessing is split into 3 steps. In the first step, vectorial WSS is evaluated. 
+**Parameters to set:**
+
+- `mesh`: folder + name of the marked h5 mesh file.
+- `w_file`: Name of the folder where the w.h5 file containing velocity and pressure is stored.
+- `res_folder`: Name of the folder where the results will be stored.
+- `theta`: the same slip parameter as was used while running the simulation.
+
 ```bash
-python3 compute_wss_aneurysm.py --mesh-folder ${meshfolder} --res-folder ${res_folder} --element th --stab none
+python3 compute_wss_aneurysm.py ---mesh ${mesh} --element th --stab none --w-file ${w_file} -o ${res_folder} --theta ${theta}
 ```
-Next, the hemodynamic quantities of interest (living on the surface mesh) are evaluated and stored.
+Next, the hemodynamic quantities of interest (living on the surface mesh) are evaluated and stored. Use an additional `--rescaled` argument for partial slip BC to compute wss as rescaled velocity, otherwise, for no-slip BC, use the following command:
 ```bash
-python3 evaluate_indicators.py
+python3 evaluate_indicators.py --mesh-folder ${mesh} --element th --edgelengths 200 --res-folder ${res_folder}
 ```
-And finally, the hemodynamic quantities are spatially integrated to obtain corresponding scalar indices
+And finally, the hemodynamic quantities are spatially integrated to obtain corresponding scalar indices: for no-slip BC, use
 ```bash
-python3 compute_flow_metrics.py
+python3 compute_flow_metrics.py --mesh-folder ${mesh} --element th --res-folder ${res_folder} --mu 0.00345 --v-file v_cp.xdmf --wss-file wss_standard_CG_1_cp.xdmf --theta ${theta} --wss-degree 1
+```
+and for partial slip BC, run
+```bash
+python compute_flow_metrics.py --mesh-folder ${mesh} --element th --res-folder ${res_folder} --v-file v_cp.xdmf --wss-file wss_rescaled_v_tan_cp.xdmf --theta ${theta} --wss-degree 2
 ```
