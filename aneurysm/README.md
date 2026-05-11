@@ -40,14 +40,14 @@ The Carreau models correspond to hematocrit levels of 25 %, 45 %, and 65 %.
 
 ## Wall boundary conditions
 
-The wall boundary condition is controlled by the slip parameter `Theta` in the flow simulation and by `theta` during post-processing.
+The wall boundary condition is controlled by the slip parameter `theta`.
 
 Use:
 
-- `Theta = -1.0` for Dirichlet no-slip boundary conditions
-- `0 <= Theta <= 1` for partial-slip boundary conditions enforced by Nitsche's method
+- `theta = -1.0` for Dirichlet no-slip boundary conditions
+- `0 <= theta <= 1` for partial-slip boundary conditions enforced by Nitsche's method
 
-Use the same slip value during all post-processing steps as in the original flow simulation.
+Use the same value of `theta` in the flow simulation and in all post-processing steps.
 
 ## Step 1: Run the flow simulation
 
@@ -57,7 +57,7 @@ Set the following variables first:
 
 ```bash
 model=Newtonian
-Theta=-1.0
+theta=-1.0
 meshname=case01_uniform_200um.xml
 meshfolder=meshes/
 dest=results/Newtonian_Dirichlet_noslip
@@ -70,7 +70,7 @@ python3 aneurysm_example.py \
     -model ${model} \
     -mu 0.00345 \
     -rho 1050 \
-    -Theta ${Theta} \
+    -Theta ${theta} \
     -meshname ${meshname} \
     -meshfolder ${meshfolder} \
     -element th \
@@ -97,7 +97,7 @@ The simulation stores velocity and pressure in the destination folder. The file 
 | `model` | Blood rheology model | `Newtonian` |
 | `mu` | Dynamic viscosity used for the Newtonian model | `0.00345` |
 | `rho` | Blood density | `1050` |
-| `Theta` | Slip parameter | `-1.0` |
+| `theta` | Slip parameter passed to the solver with `-Theta` | `-1.0` |
 | `meshname` | Name of the aneurysm mesh file | `case01_uniform_200um.xml` |
 | `meshfolder` | Folder containing the mesh file | `meshes/` |
 | `refsys_filename` | File containing local reference systems | `meshes/case01_refsystems_SI.dat` |
@@ -237,19 +237,18 @@ For partial-slip simulations, use `wss_rescaled_v_tan_cp.xdmf`.
 ```bash
 model=Newtonian
 Theta=-1.0
-theta=-1.0
-meshname=case01_uniform_200um.xml
+meshname=case01_uniform_200um
 meshfolder=meshes/
 mesh=meshes/case01_uniform_200um_marked.h5
-dest=results/Newtonian_Dirichlet_noslip
-w_file=${dest}/w.h5
-res_folder=${dest}/
+dest=results/
+w_file=${dest}/${meshname}/pulsatile/FacetNormal_th_none/Dirichlet_noslip/${model}/w.h5
+res_folder=${dest}/wss/
 
 python3 aneurysm_example.py \
     -model ${model} \
     -mu 0.00345 \
     -rho 1050 \
-    -Theta ${Theta} \
+    -Theta ${theta} \
     -meshname ${meshname} \
     -meshfolder ${meshfolder} \
     -element th \
@@ -296,20 +295,19 @@ python3 compute_flow_metrics.py \
 
 ```bash
 model=Carreau_HCT45
-Theta=0.5
-theta=0.5
-meshname=case01_uniform_200um.xml
+theta=0.8
+meshname=case01_uniform_200um
 meshfolder=meshes/
 mesh=meshes/case01_uniform_200um_marked.h5
-dest=results/Carreau_HCT45_partial_slip
-w_file=${dest}/w.h5
-res_folder=${dest}/
+dest=results/
+w_file=${dest}/${meshname}/pulsatile/FacetNormal_th_none/Nitsche_Navier_slip_80/${model}/w.h5
+res_folder=${dest}/wss/
 
 python3 aneurysm_example.py \
     -model ${model} \
     -mu 0.00345 \
     -rho 1050 \
-    -Theta ${Theta} \
+    -Theta ${theta} \
     -meshname ${meshname} \
     -meshfolder ${meshfolder} \
     -element th \
@@ -349,6 +347,7 @@ python3 compute_flow_metrics.py \
     --v-file v_cp.xdmf \
     --wss-file wss_rescaled_v_tan_cp.xdmf \
     --theta ${theta} \
+    --model ${model} \
     --wss-degree 2
 ```
 

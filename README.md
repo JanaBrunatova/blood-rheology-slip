@@ -70,38 +70,36 @@ Results can be reproduced by running the scripts in the folder `aneurysm`.
 
 - `aneurysm_example.py`: 3D patient-specific aneurysm flow solver
 - `compute_wss_aneurysm_generalized.py`: vectorial wall shear stress computation
-- `evaluate_indicators.py`: evaluation of surface-based hemodynamic indicators, including TAWSS, OSI, LSA, and normalized WSS
+- `evaluate_indicators.py`: evaluation of surface-based hemodynamic indicators
 - `compute_flow_metrics.py`: spatial integration of hemodynamic quantities over the aneurysm region
-
-**Input data:**
-
-- patient-specific aneurysm mesh
-- marked aneurysm mesh in HDF5 format
-- inlet flow profile
-- local reference-system file
-- velocity-pressure solution file `w.h5`
-- selected rheological model
-- selected wall-slip parameter
 
 **Main parameters:**
 
 - `model`: blood rheology model, for example `Newtonian`, `Carreau_HCT25`, `Carreau_HCT45`, or `Carreau_HCT65`
-- `Theta`: slip parameter used in the flow simulation; use `-1.0` for Dirichlet no-slip and values in `[0, 1]` for Nitsche slip enforcement
-- `theta`: slip parameter used during post-processing; use the same value as `Theta`
+- `theta`: slip parameter; use `-1.0` for Dirichlet no-slip and values in `[0, 1]` for Nitsche slip enforcement
 - `meshname`: name of the aneurysm mesh file used by the flow solver
 - `mesh`: path to the marked aneurysm mesh in HDF5 format
 - `w_file`: path to the HDF5 file containing velocity and pressure
-- `res_folder`: folder where post-processing results are written
-- `case`: aneurysm case identifier; use `case01`
+- `res_folder`: folder where simulation and post-processing results are written
+- `case`: aneurysm case identifier; use always `case01`
 
-**Example: Flow simulation**
+**Example: Partial-slip workflow**
 
 ```bash
+model=Carreau_HCT45
+theta=0.8
+meshname=case01_uniform_200um
+meshfolder=meshes/
+mesh=meshes/case01_uniform_200um_marked.h5
+dest=results/
+w_file=${dest}/${meshname}/pulsatile/FacetNormal_th_none/Nitsche_Navier_slip_80/${model}/w.h5
+res_folder=${dest}/wss/
+
 python3 aneurysm_example.py \
     -model ${model} \
     -mu 0.00345 \
     -rho 1050 \
-    -Theta ${Theta} \
+    -Theta ${theta} \
     -meshname ${meshname} \
     -meshfolder meshes/ \
     -element th \
@@ -117,13 +115,7 @@ python3 aneurysm_example.py \
     -unit_system SI \
     -bcout_dir_do_nothing \
     -dest ${res_folder}
-```
 
-The flow simulation stores velocity and pressure in `w.h5`. This file is used in the post-processing steps below.
-
-**Example: Wall shear stress computation**
-
-```bash
 python3 compute_wss_aneurysm_generalized.py \
     --mesh ${mesh} \
     --element th \
@@ -132,24 +124,7 @@ python3 compute_wss_aneurysm_generalized.py \
     -o ${res_folder} \
     --theta ${theta} \
     --model ${model}
-```
 
-**Example: Hemodynamic indicator evaluation**
-
-For no-slip simulations, run:
-
-```bash
-python3 evaluate_indicators.py \
-    --case ${case} \
-    --mesh-folder ${mesh} \
-    --element th \
-    --edgelengths 200 \
-    --res-folder ${res_folder}
-```
-
-For partial-slip simulations, add the `--rescaled` argument:
-
-```bash
 python3 evaluate_indicators.py \
     --case ${case} \
     --mesh-folder ${mesh} \
@@ -157,28 +132,7 @@ python3 evaluate_indicators.py \
     --edgelengths 200 \
     --res-folder ${res_folder} \
     --rescaled
-```
 
-**Example: Scalar flow metric computation**
-
-For no-slip simulations, run:
-
-```bash
-python3 compute_flow_metrics.py \
-    --case ${case} \
-    --mesh-folder ${mesh} \
-    --element th \
-    --res-folder ${res_folder} \
-    --mu 0.00345 \
-    --v-file v_cp.xdmf \
-    --wss-file wss_standard_CG_1_cp.xdmf \
-    --theta ${theta} \
-    --wss-degree 1
-```
-
-For partial-slip simulations, use the rescaled WSS file:
-
-```bash
 python3 compute_flow_metrics.py \
     --case ${case} \
     --mesh-folder ${mesh} \
@@ -187,9 +141,10 @@ python3 compute_flow_metrics.py \
     --v-file v_cp.xdmf \
     --wss-file wss_rescaled_v_tan_cp.xdmf \
     --theta ${theta} \
+    --model ${model} \
     --wss-degree 2
 ```
 
 Time-dependent velocity, pressure, wall shear stress, and surface indicators are stored in XDMF format and can be visualized in ParaView. Scalar flow metrics are written to output tables.
 
-For a detailed description of the aneurysm workflow, post-processing steps, and output files, see `aneurysm/README.md`.
+For a detailed description of the aneurysm workflow, input files, post-processing steps, and no-slip setup, see `aneurysm/README.md`.
