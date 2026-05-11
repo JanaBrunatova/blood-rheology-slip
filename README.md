@@ -58,39 +58,60 @@ For detailed description of parameters, rheological models, and numerical method
 
 ## Patient-specific aneurysm simulations
 
-Navier-Stokes equations are solved for velocity and pressure by running the code `aneurysm_example.py` in the folder `aneurysm`
+This part of the repository contains post-processing scripts for patient-specific 3D aneurysm simulations. The flow solver is based on the `ns_aneurysm` package and computes velocity and pressure for Newtonian and Carreau blood rheology models with either no-slip or partial-slip wall boundary conditions.
 
-**Parameters to set:**
+Results for the aneurysm cases can be reproduced by running the scripts in the folder `aneurysm`.
 
-- `model`: Rheological model for blood. Either `Newtonian`, `Carreau_HCT25`, `Carreau_HCT45`, or `Carreau_HCT65`.
-- `Theta`: Slip parameter between 0 an 1 for Nitsche enforcement of slip BC. Use `-1.0` for Dirichlet no-slip BC.
-- `meshname`: Name of the `.xml` mesh file.
-- `meshfolder`: Folder containing the mesh file.
-- `dest`: Name of the folder where the results will be stored.
+**Available codes:**
+
+- `compute_wss_aneurysm_generalized.py`: computes vectorial wall shear stress from the velocity-pressure solution
+- `evaluate_indicators.py`: computes surface-based hemodynamic indicators, including TAWSS, OSI, LSA, and normalized WSS
+- `compute_flow_metrics.py`: integrates hemodynamic quantities over the aneurysm region and writes scalar output tables
+
+**Input data:**
+
+- marked aneurysm mesh in HDF5 format
+- velocity-pressure solution file `w.h5`
+- inlet profile and reference-system files used by the `ns_aneurysm` solver
+- selected rheological model and wall-slip parameter
+
+**Main parameters:**
+
+- `model`: blood rheology model, for example `Newtonian`, `Carreau_HCT25`, `Carreau_HCT45`, or `Carreau_HCT65`
+- `theta`: slip parameter used in the simulation; use `-1.0` for Dirichlet no-slip and values in `[0, 1]` for Nitsche slip enforcement
+- `mesh`: path to the marked aneurysm mesh
+- `w_file`: path to the HDF5 file containing velocity and pressure
+- `res_folder`: folder where post-processing results are written
+- `case`: aneurysm case identifier, use always `case01`
+
+**Example workflow:**
 
 ```bash
-python3 aneurysm_example.py -model ${model} -mu 0.00345 -rho 1050 -Theta ${Theta} -meshname ${meshname} -meshfolder meshes/ -element th -normal FacetNormal -stab none -refsys_filename meshes/case01_refsystems_SI.dat -profile pulsatile -profile_analytical False -inflow_file meshes/inletcase01.dat -periods 3 -uniform_dt_last_period -uniform_dt 0.01 -unit_system SI -bcout_dir_do_nothing -dest ${dest}
-```
-The postprocessing is split into 3 steps. In the first step, vectorial WSS is evaluated. 
-**Parameters to set:**
+python3 compute_wss_aneurysm_generalized.py \
+    --mesh ${mesh} \
+    --element th \
+    --stab none \
+    --w-file ${w_file} \
+    -o ${res_folder} \
+    --theta ${theta} \
+    --model ${model}
 
-- `mesh`: folder + name of the marked h5 mesh file.
-- `w_file`: Name of the folder where the w.h5 file containing velocity and pressure is stored.
-- `res_folder`: Name of the folder where the results will be stored.
-- `theta`: the same slip parameter as was used while running the simulation.
+python3 evaluate_indicators.py \
+    --case ${case} \
+    --mesh-folder ${mesh} \
+    --element th \
+    --edgelengths 200 \
+    --res-folder ${res_folder}
 
-```bash
-python3 compute_wss_aneurysm.py ---mesh ${mesh} --element th --stab none --w-file ${w_file} -o ${res_folder} --theta ${theta}
-```
-Next, the hemodynamic quantities of interest (living on the surface mesh) are evaluated and stored. Use an additional `--rescaled` argument for partial slip BC to compute wss as rescaled velocity, otherwise, for no-slip BC, use the following command:
-```bash
-python3 evaluate_indicators.py --mesh-folder ${mesh} --element th --edgelengths 200 --res-folder ${res_folder}
-```
-And finally, the hemodynamic quantities are spatially integrated to obtain corresponding scalar indices: for no-slip BC, use
-```bash
-python3 compute_flow_metrics.py --mesh-folder ${mesh} --element th --res-folder ${res_folder} --mu 0.00345 --v-file v_cp.xdmf --wss-file wss_standard_CG_1_cp.xdmf --theta ${theta} --wss-degree 1
-```
-and for partial slip BC, run
-```bash
-python compute_flow_metrics.py --mesh-folder ${mesh} --element th --res-folder ${res_folder} --v-file v_cp.xdmf --wss-file wss_rescaled_v_tan_cp.xdmf --theta ${theta} --wss-degree 2
-```
+python3 compute_flow_metrics.py \
+    --case ${case} \
+    --mesh-folder ${mesh} \
+    --element th \
+    --res-folder ${res_folder} \
+    --mu 0.00345 \
+    --v-file v_cp.xdmf \
+    --wss-file wss_standard_CG_1_cp.xdmf \
+    --theta ${theta} \
+    --wss-degree 1
+
+For a detailed description of the aneurysm workflow, post-processing steps, and output files, see `aneurysm/README.md`.
