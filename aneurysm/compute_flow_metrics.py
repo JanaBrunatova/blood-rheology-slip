@@ -58,6 +58,13 @@ def build_parser():
         help="Theta value for the Navier-slip boundary dissipation coefficient.",
     )
     parser.add_argument(
+        "--model",
+        required=True,
+        default="Newtonian",
+        dest="model",
+        help="Name of the viscosity model.",
+    )
+    parser.add_argument(
         "--wall-markers",
         default="1",
         type=parse_marker_list,
@@ -368,7 +375,7 @@ def main():
     pressure_path = os.path.join(args.res_folder, args.pressure_file)
     wss_path = os.path.join(args.res_folder, args.wss_file)
     
-    model_name_str = os.path.basename(os.path.normpath(args.res_folder))
+    model_name_str = args.model
     print(f"{model_name_str=}")
     if model_name_str.startswith("Carreau"):
         model_name = getattr(model, model_name_str)
