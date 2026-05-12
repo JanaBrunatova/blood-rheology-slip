@@ -21,11 +21,12 @@ authors:
 abstract: "Simulation and post-processing files for the study of fluid rheology and wall slip effects on blood flow characteristics in arteries."
 
 keywords:
+  - Navier--Stokes
+  - Carreau
+  - Navier-slip
   - blood flow
-  - fluid rheology
-  - wall slip
-  - Navier-Stokes
-  - Carreau model
+  - aortic root
+  - intracranial aneurysm
 
 license: MIT
 repository-code: "https://github.com/JanaBrunatova/blood-rheology-slip"
