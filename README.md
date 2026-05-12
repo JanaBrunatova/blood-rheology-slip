@@ -3,7 +3,7 @@
 This repository contain codes and necessary files to reproduce data published in the paper
 **_Effects of fluid rheology and wall slip on blood flow characteristics in arteries_**
 
-Computational meshes for 3D problems can be found at [![DOI](https://zenodo.org/badge/1234489247.svg)](https://doi.org/10.5281/zenodo.20146426)
+Computational meshes for 3D problems can be found at [![DOI:10.5281/zenodo.20146426](https://zenodo.org/badge/DOI/10.5281/zenodo.20146426.svg)](https://doi.org/10.5281/zenodo.20146426)
 
 ## Prerequisities
 
