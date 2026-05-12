@@ -76,7 +76,11 @@ Results can be reproduced by running the scripts in the folder `aneurysm`.
 **Main parameters:**
 
 - `model`: blood rheology model, for example `Newtonian`, `Carreau_HCT25`, `Carreau_HCT45`, or `Carreau_HCT65`
-- `theta`: slip parameter; use `-1.0` for Dirichlet no-slip and values in `[0, 1]` for Nitsche slip enforcement
+- `Theta`: slip parameter used for the wall boundary condition. Use `Theta = -1.0` for Dirichlet no-slip boundary conditions. For Nitsche enforcement of Navier slip, use values `0 <= Theta < 1`. The corresponding Navier-slip coefficient is
+
+  $$\kappa = \frac{\Theta}{1-\Theta}.$$
+
+  For example, `Theta = 0.8` gives `kappa = 4`, `Theta = 0.9` gives `kappa = 9`, and `Theta = 0.95` gives `kappa = 19`. The no-slip limit corresponds to `kappa = infinity` and is recovered in the code by using the Dirichlet no-slip option `Theta = -1.0`.
 - `meshname`: name of the aneurysm mesh file used by the flow solver
 - `mesh`: path to the marked aneurysm mesh in HDF5 format
 - `w_file`: path to the HDF5 file containing velocity and pressure

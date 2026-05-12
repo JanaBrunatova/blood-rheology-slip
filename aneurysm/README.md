@@ -45,7 +45,21 @@ The wall boundary condition is controlled by the slip parameter `theta`.
 Use:
 
 - `theta = -1.0` for Dirichlet no-slip boundary conditions
-- `0 <= theta <= 1` for partial-slip boundary conditions enforced by Nitsche's method
+- `0 <= theta < 1` for partial-slip boundary conditions enforced by Nitsche's method
+
+For partial-slip simulations, `theta` is related to the Navier-slip coefficient `kappa` by
+
+$$\kappa = \frac{\theta}{1-\theta}.$$
+
+Examples:
+
+| `theta` | `kappa` |
+|---:|---:|
+| 0.8 | 4 |
+| 0.9 | 9 |
+| 0.95 | 19 |
+
+The no-slip limit corresponds to `kappa = infinity` and is recovered in the code by using the Dirichlet no-slip option `theta = -1.0`.
 
 Use the same value of `theta` in the flow simulation and in all post-processing steps.
 
